@@ -1,13 +1,13 @@
 #include <cgRender.h>
 
-void init() 
+void init()
 {
   glClearColor (0.0, 0.0, 0.0, 0.0);
-  cout << "init" << endl;
+  std::cout << "init" << std::endl;
 
   /*
   glShadeModel (GL_SMOOTH);
-  
+
   // Enable lighting
   glEnable (GL_LIGHTING);
   glEnable (GL_LIGHT0);
@@ -15,11 +15,11 @@ void init()
   glLightfv(GL_LIGHT0, GL_AMBIENT,  LightAmbient);
   glLightfv(GL_LIGHT0, GL_DIFFUSE,  LightDiffuse);
   glLightfv(GL_LIGHT0, GL_SPECULAR, LightSpecular);
-  
+
   // Set material parameters
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  MaterialSpecular);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, MaterialShininess);
-  
+
   // Enable Z-buffering
   glEnable(GL_DEPTH_TEST);
   */
@@ -28,7 +28,7 @@ void init()
 void display(void)
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  cout << "display" << endl;
+  std::cout << "display" << std::endl;
 
   /*
   for (all polygons)
@@ -51,9 +51,9 @@ void display(void)
 
 void reshape (int w, int h)
 {
-  cout << "reshape" << endl;
+  std::cout << "reshape" << std::endl;
 
-  glViewport (0, 0, (GLsizei) w, (GLsizei) h); 
+  glViewport (0, 0, (GLsizei) w, (GLsizei) h);
   /*
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity();
@@ -77,11 +77,11 @@ int main(int argc, char** argv)
 {
   // Initialize graphics window
   glutInit(&argc, argv);
-  glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH); 
+  glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
   //  Or, can use double buffering
-  //  glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); 
+  //  glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
-  glutInitWindowSize (256, 256); 
+  glutInitWindowSize (256, 256);
   glutInitWindowPosition (0, 0);
   glutCreateWindow (argv[0]);
 
@@ -89,10 +89,10 @@ int main(int argc, char** argv)
   init();
 
   // Initialize callback functions
-  glutDisplayFunc(display); 
+  glutDisplayFunc(display);
   glutReshapeFunc(reshape);
   glutKeyboardFunc(keyboard);
 
-  // Start rendering 
+  // Start rendering
   glutMainLoop();
 }

@@ -5,8 +5,6 @@
 #include <GL/glut.h>
 #include <stdlib.h>
 
-using namespace std;
-
 #include <fstream>
 #include <iostream>
 

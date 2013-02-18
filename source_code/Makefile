@@ -1,9 +1,9 @@
-CC      = c++
-LD      = c++
+CC      = clang++
+LD      = clang++
 CFLAGS  = -I/usr/X11R6/include -I. -c
 LDFLAGS = -L/usr/X11R6/lib -lglut -lGLU -lGL -lXi -lXmu -lXt -lXext -lX11 -lSM -lICE -lm
 
-INCS = 
+INCS =
 
 OBJS = cgRender.o
 
