@@ -1,7 +1,7 @@
 CC      = clang++
 LD      = clang++
-CFLAGS  = -I/usr/X11R6/include -I. -c
-LDFLAGS = -L/usr/X11R6/lib -lglut -lGLU -lGL -lXi -lXmu -lXt -lXext -lX11 -lSM -lICE -lm
+CFLAGS  = -I/usr/X11R6/include -I. -std=c++11 -c
+LDFLAGS = -L/usr/X11R6/lib -std=c++11 -lglut -lGLU -lGL -lXi -lXmu -lXt -lXext -lX11 -lSM -lICE -lm
 
 INCS =
 
