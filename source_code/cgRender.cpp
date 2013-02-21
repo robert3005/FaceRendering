@@ -171,13 +171,6 @@ int main(int argc, char** argv) {
 
   VTKData * mesh = readVTKFile("../data/face.vtk");
   PPMImage * img = readPPM("../data/face.ppm");
-  cout << img->x << " | " << img->y << endl;
-
-  /*PPMPixel * pixelData = img->data;
-  for(int i = 0; i < img->x*img->y; i++) {
-    cout << "R: " << (int) pixelData->red << " G: " << (int) pixelData->green << " B: " << (int) pixelData->blue << endl;
-    pixelData++;
-  }*/
 
   glutInitWindowSize (256, 256);
   glutInitWindowPosition (0, 0);
