@@ -1,12 +1,10 @@
 #include <cgRender.h>
 
 typedef struct {
-  float ** vertices;
-  int numberOfVertices;
-  int ** polygons;
-  int numberOfPolygons;
-  vector<int> * verticePolygons;
-  float ** texture;
+  vector<tuple<float,float,float>> vertices;
+  vector<vector<int>> polygons;
+  vector<vector<int>> verticePolygons;
+  vector<pair<float,float>> texture;
 } VTKData;
 
 void init() {
@@ -79,80 +77,63 @@ void keyboard(unsigned char key, int x, int y) {
 }
 
 VTKData * readVTKFile(const char * filename) {
-  ifstream inFile;
+  ifstream inFile(filename);
   string buffer;
-  string temp;
-  inFile.open(filename);
+  int readCount;
+  int sideCount;
+  int temp;
 
   VTKData * mesh = new VTKData;
 
   if(inFile.is_open()) {
-    while(getline(inFile, buffer) && buffer.find("POINTS") == string::npos) {}
 
-    stringstream ss(buffer, stringstream::in | stringstream::out);
-
-    int verticeCount;
-    ss >> temp >> verticeCount;
-    mesh->vertices = new float * [verticeCount];
-    mesh->numberOfVertices = verticeCount;
-    mesh->verticePolygons = new vector<int>[verticeCount];
-    for(int i = 0; i < verticeCount; i += 3) {
-      getline(inFile, buffer);
-      ss.clear();
-      ss.str(buffer);
-      for(int k = 0; k < 3; k++) {
-        mesh->vertices[i+k] = new float[3];
-        for(int j = 0; j < 3; j++) {
-          ss >> mesh->vertices[i+k][j];
-          cout << mesh->vertices[i+k][j] << " ";
-        }
-        cout << endl;
-      }
+    while(buffer != "POINTS") {
+      inFile >> buffer;
+    }
+    inFile >> readCount;
+    inFile >> buffer;
+    float temp1, temp2, temp3;
+    for(int i = 0; i < readCount; i++) {
+      inFile >> temp1 >> temp2 >> temp3;
+      mesh->vertices.push_back(make_tuple(temp1, temp2, temp3));
     }
 
-    while(getline(inFile, buffer) && buffer.find("POLYGONS") == string::npos) {}
+    mesh->verticePolygons.assign( readCount, vector<int>() );
 
-    ss.clear();
-    ss.str(buffer);
-
-    string header;
-    int polygonCount;
-    int cellCount;
-    ss >> header >> polygonCount >> cellCount;
-    mesh->numberOfPolygons = polygonCount;
-    mesh->polygons = new int * [polygonCount];
-    int pSize;
-    for(int i = 0; i < polygonCount; i++) {
-      getline(inFile, buffer);
-      ss.clear();
-      ss.str(buffer);
-      ss >> pSize;
-      mesh->polygons[i] = new int [pSize];
-      for(int j = 0; j < pSize; j++) {
-        ss >> mesh->polygons[i][j];
-        mesh->verticePolygons[mesh->polygons[i][j]].push_back(i);
-        cout << mesh->polygons[i][j] << " ";
-      }
-      cout << endl;
+    while(buffer != "POLYGONS") {
+      inFile >> buffer;
     }
 
-    for(int i = 0; i < verticeCount; i++) {
-      for(auto mT : mesh->verticePolygons[i]) {
-        cout << mT << " ";
+    inFile >> readCount;
+    inFile >> buffer;
+    vector<int> polygon;
+    for(int i = 0; i < readCount; i++) {
+      inFile >> sideCount;
+      for(int j = 0; j < sideCount; j++) {
+        inFile >> temp;
+        polygon.push_back(temp);
+        mesh->verticePolygons[temp].push_back(i);
       }
-      cout << endl;
+      mesh->polygons.push_back(polygon);
+      polygon.clear();
     }
 
-    while(getline(inFile, buffer) && buffer.find("TEXTURE_COORDINATES") == string::npos) {}
-    float tempTexture;
-    mesh->texture = new float * [verticeCount];
-    for(int i = 0; i < mesh->numberOfVertices; i++) {
-      mesh->texture[i] = new float[2];
-      inFile >> mesh->texture[i][0];
-      inFile >> mesh->texture[i][1];
-      cout << mesh->texture[i][0] << " | " << mesh->texture[i][1] << endl;
+    while(buffer != "POINT_DATA") {
+      inFile >> buffer;
+    }
+
+    inFile >> readCount;
+    inFile >> buffer;
+    inFile >> buffer;
+    inFile >> buffer;
+    inFile >> buffer;
+    cout << buffer << endl;
+    for(int i = 0; i < readCount; i++) {
+      inFile >> temp1 >> temp2;
+      mesh->texture.push_back(make_pair(temp1,temp2));
     }
   }
+
   inFile.close();
   return mesh;
 }
@@ -260,7 +241,6 @@ int main(int argc, char** argv) {
     cout << "R: " << (int) pixelData->red << " G: " << (int) pixelData->green << " B: " << (int) pixelData->blue << endl;
     pixelData++;
   }*/
-
   readVTKFile("../data/face.vtk");
 
   glutInitWindowSize (256, 256);

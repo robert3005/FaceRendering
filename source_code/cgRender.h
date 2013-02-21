@@ -9,6 +9,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <tuple>
 
 using namespace std;
 
