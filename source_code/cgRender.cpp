@@ -7,6 +7,11 @@ typedef struct {
   vector<pair<float,float>> texture;
 } VTKData;
 
+typedef struct {
+  int x, y;
+  vector<tuple<int,int,int>> pixels;
+} PPMImage;
+
 void init() {
   glClearColor (0.0, 0.0, 0.0, 0.0);
   cout << "init" << endl;
@@ -90,6 +95,7 @@ VTKData * readVTKFile(const char * filename) {
     while(buffer != "POINTS") {
       inFile >> buffer;
     }
+
     inFile >> readCount;
     inFile >> buffer;
     float temp1, temp2, temp3;
@@ -127,7 +133,6 @@ VTKData * readVTKFile(const char * filename) {
     inFile >> buffer;
     inFile >> buffer;
     inFile >> buffer;
-    cout << buffer << endl;
     for(int i = 0; i < readCount; i++) {
       inFile >> temp1 >> temp2;
       mesh->texture.push_back(make_pair(temp1,temp2));
@@ -138,92 +143,54 @@ VTKData * readVTKFile(const char * filename) {
   return mesh;
 }
 
-typedef struct {
-     unsigned char red,green,blue;
-} PPMPixel;
+// typedef struct {
+     // unsigned char red,green,blue;
+// } PPMPixel;
+//
+// typedef struct {
+     // int x, y;
+     // PPMPixel *data;
+// } PPMImage;
+//
+// #define CREATOR "RPFELGUEIRAS"
+// #define RGB_COMPONENT_COLOR 255
 
-typedef struct {
-     int x, y;
-     PPMPixel *data;
-} PPMImage;
+PPMImage * readPPM(const char *filename) {
+  ifstream ppmFile(filename, ios::in | ios::binary);
+  PPMImage * img = new PPMImage();
+  unsigned char buffer, buffer2, red, green, blue;
+  string line;
 
-#define CREATOR "RPFELGUEIRAS"
-#define RGB_COMPONENT_COLOR 255
-
-PPMImage *readPPM(const char *filename) {
-    char buff[16];
-    PPMImage *img;
-    FILE *fp;
-    int c, rgb_comp_color;
-      //open PPM file for reading
-    fp = fopen(filename, "rb");
-    if (!fp) {
-      fprintf(stderr, "Unable to open file '%s'\n", filename);
-      exit(1);
+  if(ppmFile.is_open()) {
+    ppmFile >> buffer >> buffer2;
+    if(buffer != 'P' || buffer2 != '6') {
+      cout << "Wrong file type" << endl;
     }
 
-       //read image format
-    if (!fgets(buff, sizeof(buff), fp)) {
-      perror(filename);
-      exit(1);
+    while(getline(ppmFile, line) && line[0] == '#') {}
+    ppmFile >> img->x >> img->y;
+
+    int color_depth;
+    ppmFile >> color_depth;
+    if(color_depth != 255) {
+      cout << "Wrong color depth" << endl;
     }
 
-    //check the image format
-    if (buff[0] != 'P' || buff[1] != '6') {
-         fprintf(stderr, "Invalid image format (must be 'P6')\n");
-         exit(1);
+    for(int i = 0; i < img->x*img->y; i++) {
+      ppmFile >> red >> green >> blue;
+      img->pixels.push_back(make_tuple(red, green, blue));
     }
+  }
 
-    //alloc memory form image
-    img = (PPMImage *)malloc(sizeof(PPMImage));
-    if (!img) {
-         fprintf(stderr, "Unable to allocate memory\n");
-         exit(1);
+  for(int i = 0; i < img->x; i++) {
+    for(int j = 0; j < img->y; j++) {
+      cout << get<0>(img->pixels[i*512+j]) << get<1>(img->pixels[i*512+j]) << get<2>(img->pixels[i*512+j]) << endl;
     }
+  }
 
-    //check for comments
-    c = getc(fp);
-    while (c == '#') {
-    while (getc(fp) != '\n') {}
-         c = getc(fp);
-    }
+  ppmFile.close();
+  return img;
 
-    ungetc(c, fp);
-    //read image size information
-    if (fscanf(fp, "%d %d", &img->x, &img->y) != 2) {
-         fprintf(stderr, "Invalid image size (error loading '%s')\n", filename);
-         exit(1);
-    }
-
-    //read rgb component
-    if (fscanf(fp, "%d", &rgb_comp_color) != 1) {
-         fprintf(stderr, "Invalid rgb component (error loading '%s')\n", filename);
-         exit(1);
-    }
-
-    //check rgb component depth
-    if (rgb_comp_color!= RGB_COMPONENT_COLOR) {
-         fprintf(stderr, "'%s' does not have 8-bits components\n", filename);
-         exit(1);
-    }
-
-    while (fgetc(fp) != '\n') {}
-    //memory allocation for pixel data
-    img->data = (PPMPixel*)malloc(img->x * img->y * sizeof(PPMPixel));
-
-    if (!img) {
-         fprintf(stderr, "Unable to allocate memory\n");
-         exit(1);
-    }
-
-    //read pixel data from file
-    if (fread(img->data, 3 * img->x, img->y, fp) != img->y) {
-         fprintf(stderr, "Error loading image '%s'\n", filename);
-         exit(1);
-    }
-
-    fclose(fp);
-    return img;
 }
 
 int main(int argc, char** argv) {
@@ -233,6 +200,7 @@ int main(int argc, char** argv) {
   //  Or, can use double buffering
   //  glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
+  VTKData * mesh = readVTKFile("../data/face.vtk");
   PPMImage * img = readPPM("../data/face.ppm");
   cout << img->x << " | " << img->y << endl;
 
@@ -241,7 +209,6 @@ int main(int argc, char** argv) {
     cout << "R: " << (int) pixelData->red << " G: " << (int) pixelData->green << " B: " << (int) pixelData->blue << endl;
     pixelData++;
   }*/
-  readVTKFile("../data/face.vtk");
 
   glutInitWindowSize (256, 256);
   glutInitWindowPosition (0, 0);
