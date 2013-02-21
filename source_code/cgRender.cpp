@@ -1,59 +1,73 @@
 #include <cgRender.h>
 
+VTKData * mesh;
+PPMImage * img;
+int WindowWidth, WindowHeight;
+
 void init() {
   glClearColor (0.0, 0.0, 0.0, 0.0);
   cout << "init" << endl;
 
-  /*
+  const GLfloat ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+  const GLfloat diffuseLight[] = { 0.8f, 0.8f, 0.8, 1.0f };
+  const GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+  const GLfloat position[] = { -1.5f, 1.0f, -4.0f, 1.0f };
+  const GLfloat material = 64.0f;
+
   glShadeModel (GL_SMOOTH);
 
   // Enable lighting
   glEnable (GL_LIGHTING);
   glEnable (GL_LIGHT0);
-  glLightfv(GL_LIGHT0, GL_POSITION, LightPosition);
-  glLightfv(GL_LIGHT0, GL_AMBIENT,  LightAmbient);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE,  LightDiffuse);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, LightSpecular);
+  glLightfv(GL_LIGHT0, GL_POSITION, position);
+  glLightfv(GL_LIGHT0, GL_AMBIENT,  ambientLight);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE,  diffuseLight);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
 
   // Set material parameters
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  MaterialSpecular);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, MaterialShininess);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  specularLight);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, specularLight);
 
   // Enable Z-buffering
   glEnable(GL_DEPTH_TEST);
-  */
 }
 
 void display(void) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   cout << "display" << endl;
 
-  /*
-  for (all polygons)
+  float v1, v2, v3;
+  glPushMatrix();
+  tbMatrix();
+  for (auto polygon : mesh->polygons) {
     glBegin(GL_POLYGON);
-    for (all vertices of polygon)
+    for (auto verticeIndex : polygon) {
+      tie(v1, v2, v3) = mesh->vertices[verticeIndex];
       // Define texture coordinates of vertex
-      glTexCoord2f(...);
+      // glTexCoord2f(...);
       // Define normal of vertex
-      glNormal3f(...);
+      // glNormal3f(...);
       // Define coordinates of vertex
-      glVertex3f(...);
+      glVertex3f(v1, v2, v3);
     }
     glEnd();
   }
-  glFlush ();
-  //  or, if double buffering is used,
-  //  glutSwapBuffers();
-  */
+  glPopMatrix();
+  glutSwapBuffers();
 }
 
 void reshape (int w, int h) {
   cout << "reshape" << endl;
 
+  tbReshape(w, h);
+
   glViewport (0, 0, (GLsizei) w, (GLsizei) h);
+
+  WindowWidth = w;
+  WindowHeight = h;
   /*
   glMatrixMode (GL_PROJECTION);
-  glLoadIdentityd ();
+  glLoadIdentity();
   gluPerspective(fovy, aspect, near, far);
   glMatrixMode (GL_MODELVIEW);
   glLoadIdentity();
@@ -67,6 +81,14 @@ void keyboard(unsigned char key, int x, int y) {
     exit(0);
     break;
   }
+}
+
+void mouse(int button, int state, int x, int y) {
+  tbMouse(button, state, x, y);
+}
+
+void motion(int x, int y) {
+  tbMotion(x, y);
 }
 
 VTKData * readVTKFile(const char * filename) {
@@ -165,12 +187,10 @@ PPMImage * readPPM(const char *filename) {
 int main(int argc, char** argv) {
   // Initialize graphics window
   glutInit(&argc, argv);
-  glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-  //  Or, can use double buffering
-  //  glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+  glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
-  VTKData * mesh = readVTKFile("../data/face.vtk");
-  PPMImage * img = readPPM("../data/face.ppm");
+  mesh = readVTKFile("../data/face.vtk");
+  img = readPPM("../data/face.ppm");
 
   glutInitWindowSize (256, 256);
   glutInitWindowPosition (0, 0);
@@ -183,6 +203,10 @@ int main(int argc, char** argv) {
   glutDisplayFunc(display);
   glutReshapeFunc(reshape);
   glutKeyboardFunc(keyboard);
+  glutMouseFunc(mouse);
+  glutMotionFunc(motion);
+  tbInit(GLUT_LEFT_BUTTON);
+  tbAnimate(GL_TRUE);
 
   // Start rendering
   glutMainLoop();

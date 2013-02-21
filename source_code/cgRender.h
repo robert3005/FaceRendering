@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <tuple>
+#include "trackball.h"
 
 using namespace std;
 
