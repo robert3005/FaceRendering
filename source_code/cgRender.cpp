@@ -1,17 +1,5 @@
 #include <cgRender.h>
 
-typedef struct {
-  vector<tuple<float,float,float>> vertices;
-  vector<vector<int>> polygons;
-  vector<vector<int>> verticePolygons;
-  vector<pair<float,float>> texture;
-} VTKData;
-
-typedef struct {
-  int x, y;
-  vector<tuple<int,int,int>> pixels;
-} PPMImage;
-
 void init() {
   glClearColor (0.0, 0.0, 0.0, 0.0);
   cout << "init" << endl;
@@ -143,18 +131,6 @@ VTKData * readVTKFile(const char * filename) {
   return mesh;
 }
 
-// typedef struct {
-     // unsigned char red,green,blue;
-// } PPMPixel;
-//
-// typedef struct {
-     // int x, y;
-     // PPMPixel *data;
-// } PPMImage;
-//
-// #define CREATOR "RPFELGUEIRAS"
-// #define RGB_COMPONENT_COLOR 255
-
 PPMImage * readPPM(const char *filename) {
   ifstream ppmFile(filename, ios::in | ios::binary);
   PPMImage * img = new PPMImage();
@@ -182,15 +158,8 @@ PPMImage * readPPM(const char *filename) {
     }
   }
 
-  for(int i = 0; i < img->x; i++) {
-    for(int j = 0; j < img->y; j++) {
-      cout << get<0>(img->pixels[i*512+j]) << get<1>(img->pixels[i*512+j]) << get<2>(img->pixels[i*512+j]) << endl;
-    }
-  }
-
   ppmFile.close();
   return img;
-
 }
 
 int main(int argc, char** argv) {

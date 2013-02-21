@@ -13,4 +13,16 @@
 
 using namespace std;
 
+typedef struct {
+  vector<tuple<float,float,float>> vertices;
+  vector<vector<int>> polygons;
+  vector<vector<int>> verticePolygons;
+  vector<pair<float,float>> texture;
+} VTKData;
+
+typedef struct {
+  int x, y;
+  vector<tuple<int,int,int>> pixels;
+} PPMImage;
+
 #endif
