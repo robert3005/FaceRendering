@@ -24,7 +24,7 @@ typedef struct {
 
 typedef struct {
   int x, y;
-  unsigned char * pixels;
+  char * pixels;
 } PPMImage;
 
 #endif
