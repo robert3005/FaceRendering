@@ -4,6 +4,7 @@ VTKData * mesh;
 PPMImage * img;
 GLuint texture;
 vector<tuple<float,float,float>> vertexNormals;
+vector<tuple<float,float,float>> polygonNormals;
 int WindowWidth, WindowHeight;
 tuple<float,float,float> objCentre;
 bool texturesEnabled = true;
@@ -129,12 +130,12 @@ tuple<float,float,float> normalForPolygon(int polygonIndex) {
 // Normal for a given polygon is not stored so it can be calculated more than once
 tuple<float,float,float> normalForVertex(int vertexIndex) {
   auto polygons = mesh->verticePolygons[vertexIndex];
-  vector<tuple<float,float,float>> polygonNormals;
+  vector<tuple<float,float,float>> thisPolygonNormals;
   for(auto polygonIndex : polygons) {
-    polygonNormals.push_back(normalForPolygon(polygonIndex));
+    thisPolygonNormals.push_back(polygonNormals[polygonIndex]);
   }
-  int count = polygonNormals.size();
-  auto normalSum = accumulate(polygonNormals.begin(), polygonNormals.end(), make_tuple(0.0f,0.0f,0.0f),
+  int count = thisPolygonNormals.size();
+  auto normalSum = accumulate(thisPolygonNormals.begin(), thisPolygonNormals.end(), make_tuple(0.0f,0.0f,0.0f),
    [] (tuple<float,float,float> const &init, tuple<float,float,float> const &a) -> tuple<float,float,float> const {
     return make_tuple(get<0>(init) + get<0>(a),get<1>(init) + get<1>(a),get<2>(init) + get<2>(a));
   });
@@ -145,6 +146,13 @@ tuple<float,float,float> normalForVertex(int vertexIndex) {
 void calculateNormals(int maxVertex) {
   for(int i = 0; i < maxVertex; i++) {
     vertexNormals.push_back(normalForVertex(i));
+  }
+}
+
+// Precompute normals for all polygons
+void calculatePolygonNormals(int maxPolygon) {
+  for(int i = 0; i < maxPolygon; i++) {
+    polygonNormals.push_back(normalForPolygon(i));
   }
 }
 
@@ -341,6 +349,7 @@ int main(int argc, char** argv) {
   mesh = readVTKFile(argv[1]);
   img = readPPM(argv[2]);
 
+  calculatePolygonNormals(mesh->polygons.size());
   calculateNormals(mesh->vertices.size());
   calculateCentre();
 
