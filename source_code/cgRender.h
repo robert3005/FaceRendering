@@ -9,6 +9,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <numeric>
 #include <tuple>
 #include "trackball.h"
 
@@ -23,7 +24,7 @@ typedef struct {
 
 typedef struct {
   int x, y;
-  vector<tuple<int,int,int>> pixels;
+  unsigned char * pixels;
 } PPMImage;
 
 #endif
