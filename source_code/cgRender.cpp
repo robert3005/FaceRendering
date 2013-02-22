@@ -254,10 +254,9 @@ VTKData * readVTKFile(const char * filename) {
   return mesh;
 }
 
-GLuint readPPM(const char *filename) {
+PPMImage * readPPM(const char *filename) {
   ifstream ppmFile(filename, ios::in | ios::binary);
-  GLuint texture;
-  img = new PPMImage();
+  PPMImage * img = new PPMImage();
   unsigned char buffer, buffer2;
   string line;
 
